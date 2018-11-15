@@ -1,0 +1,19 @@
+vytvorenie novej BRANCH:
+
+>master   'git pull'
+>master   'git checkout -b my-new-branch' (meno brach by malo suvisiet s tym coho sa to tyka)
+>my-new-branch   (mozem robit akekolvek zmeny)
+
+vytvorenie (prveho) commitu:
+>my-new-branch   'git add .'
+>my-new-branch   'git commit -m "Moj prvy commit"';
+>my-new-branch   ( 'git  push' )* POMOCKA
+>my-new-branch   'git push --set-upstream origin my-new-branch'
+
+ostatne commity:
+>my-new-branch   'git add .'
+>my-new-branch   'git commit -m "dalsi commit"';
+>my-new-branch   'git  push'
+
+>>> ak uz mam finalnu verziu ktoru chcem mergnut do mastra najskor vyvorim PullRequest
+najjednoduchsie tu: https://github.com/xpochybova/MOBV/pulls
