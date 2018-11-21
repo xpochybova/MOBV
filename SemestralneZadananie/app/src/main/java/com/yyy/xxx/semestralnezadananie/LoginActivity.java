@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -15,7 +16,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,6 +36,10 @@ public class LoginActivity extends AppCompatActivity {
     private TextView email_textView;
     private TextView username_textView;
 
+    private String newUsername;
+
+    DatabaseReference databaseUsers;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +54,9 @@ public class LoginActivity extends AppCompatActivity {
         username_textView = findViewById(R.id.textView_username);
 
         mAuth = FirebaseAuth.getInstance();
+
+        newUsername = "";
+        databaseUsers = FirebaseDatabase.getInstance().getReference("users");
     }
 
     @Override
@@ -64,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(this,  new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
@@ -72,6 +83,7 @@ public class LoginActivity extends AppCompatActivity {
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+                            addToDatabase(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -148,6 +160,8 @@ public class LoginActivity extends AppCompatActivity {
 
             String username = username_editText.getText().toString();
 
+            this.newUsername = username;
+
             if (TextUtils.isEmpty(username))
             {
                 username_editText.setError("Required.");
@@ -213,5 +227,29 @@ public class LoginActivity extends AppCompatActivity {
     public void singInOnClick(View view)
     {
         singinUser(this.email_editText.getText().toString(), this.passwd_editText.getText().toString());
+    }
+
+    public void addToDatabase( FirebaseUser userF ){
+
+        if (userF != null) {
+            Time now = new Time();
+            now.setToNow();
+           // String name = userF.getDisplayName();
+            String uid = userF.getUid();
+
+            //   String id = databaseUsers.push().getKey();
+
+            User user = new User(this.newUsername, now.toString(), 0);
+            databaseUsers.child(uid).setValue(user);
+
+
+            Toast.makeText(LoginActivity.this, "Added user to database",
+                    Toast.LENGTH_SHORT).show();
+        }
+        else {
+        Toast.makeText(LoginActivity.this, "Added user FAIL",
+                Toast.LENGTH_SHORT).show();
+        }
+
     }
 }
